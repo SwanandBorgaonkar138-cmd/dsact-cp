@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "URL Guard",
+  "version": "1.0",
+  "description": "Flags suspicious links using regex rules and DFAs.",
+  "permissions": ["activeTab"],
+  "action": { "default_popup": "popup.html" },
+  "content_scripts": [{
+    "matches": ["http://*/*", "https://*/*"],
+    "js": ["detector.js", "content.js"]
+  }]
+}

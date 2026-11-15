@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>URL Guard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#E9EEF2;--ink:#13212C;--mute:#5B6B78;--line:#C5D0D9;--safe:#1F7A4D;--warn:#B96A00;--bad:#B3261E}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:12vh 20px 8vh}
+h1{font:800 clamp(2rem,6vw,3.2rem)/1.05 'Bricolage Grotesque',system-ui,sans-serif;margin:0 0 .4em;letter-spacing:-.02em}
+.lead{color:var(--mute);margin:0 0 1.6em;max-width:56ch}
+form{display:flex;gap:8px;flex-wrap:wrap}
+input{flex:1 1 320px;padding:14px 16px;font:15px ui-monospace,Menlo,monospace;border:2px solid var(--ink);border-radius:4px;background:#fff;color:var(--ink)}
+button{padding:14px 22px;font:600 15px system-ui,sans-serif;background:var(--ink);color:#fff;border:0;border-radius:4px;cursor:pointer}
+:focus-visible{outline:3px solid #2B6CB0;outline-offset:2px}
+#out{margin-top:3em}
+#verdict{font:800 clamp(3rem,12vw,6rem)/1 'Bricolage Grotesque',system-ui,sans-serif;letter-spacing:-.03em;margin:0}
+#meta{color:var(--mute);margin:.4em 0 1.5em;word-break:break-all}
+ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+li{display:flex;justify-content:space-between;gap:16px;padding:12px 0;border-bottom:1px solid var(--line)}
+li b{font-variant-numeric:tabular-nums}
+.note{color:var(--mute);font-size:14px;margin-top:2em}
+</style></head>
+<body><main>
+<h1>Paste a link before you click it.</h1>
+<p class="lead">URL Guard checks the address against pattern rules and finite automata, and shows exactly which signs it found.</p>
+<form><input type="text" placeholder="http://paypal.com.secure-verify.xyz/login" aria-label="URL to check" required autofocus>
+<button>Check link</button></form>
+<section id="out" hidden aria-live="polite">
+<p id="verdict"></p><p id="meta"></p><ul id="rules"></ul>
+<p class="note">Everything runs in your browser. A Safe result is not a guarantee, since rules cannot read the page itself.</p>
+</section>
+</main>
+<script src="detector.js"></script>
+<script>
+const f=document.querySelector('form'),inp=document.querySelector('input'),out=document.getElementById('out');
+const colors={Safe:'var(--safe)',Suspicious:'var(--warn)',Dangerous:'var(--bad)'};
+f.addEventListener('submit',e=>{
+  e.preventDefault();
+  const r=URLGuard.analyze(inp.value);
+  out.hidden=false;
+  const v=document.getElementById('verdict');v.textContent=r.verdict;v.style.color=colors[r.verdict];
+  document.getElementById('meta').textContent='Risk score '+r.score+' for '+r.url;
+  const list=document.getElementById('rules');list.innerHTML='';
+  (r.hits.length?r.hits:[{label:'No warning signs found',weight:0}]).forEach(h=>{
+    const li=document.createElement('li'),s=document.createElement('span'),b=document.createElement('b');
+    s.textContent=h.label;b.textContent='+'+h.weight;li.append(s,b);list.appendChild(li);
+  });
+});
+</script></body></html>
